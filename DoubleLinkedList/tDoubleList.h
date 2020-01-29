@@ -8,6 +8,17 @@ class tDoubleList
 	    T data;
 		Node * prev;
 		Node * next;
+
+		Node() 
+		{
+			prev = next = nullptr;
+		}
+
+		Node(const T& val)
+		{ 
+			prev = next = nullptr; 
+			data = val; 
+		}
 	};
 
 	Node * head;
@@ -70,24 +81,31 @@ public:
 template<typename T>
 inline tDoubleList<T>::tDoubleList()
 {
-	*head = nullptr;
-	*tail = nullptr;
+	head = nullptr;
+	tail = nullptr;
 }
 
 template<typename T>
 inline tDoubleList<T>::tDoubleList(const tDoubleList & other)
 {
-	Node* tmpHead = new Node();
-	
-
-	
+	for (auto v : other)
+	{
+		push_back(v);
+	}
 }
 
-//template<typename T>
-//inline tDoubleList & tDoubleList<T>::operator=(const tDoubleList & rhs)
-//{
-//	// TODO: insert return statement here
-//}
+template<typename T>
+inline tDoubleList<T> & tDoubleList<T>::operator=(const tDoubleList & rhs)
+{
+	clear();
+
+	for (auto v : rhs)
+	{
+		push_back(v);
+	}
+
+	return *this;
+}
 
 //deconstructor
 template<typename T>
@@ -108,18 +126,29 @@ inline void tDoubleList<T>::push_front(const T & val)
 	Node* new_Node = new Node();
 
 	new_Node->data = val;
-	new_Node->next = *head;
-	*head->prev = new_Node;
-	*head = new_Node;
+
+	if (head == nullptr)
+	{
+		head = new_Node;
+		tail = new_Node;
+	}
+	else
+	{
+		
+		new_Node->next = head;
+		head->prev = new_Node;
+		head = new_Node;
+	}
+	
 }
 
 template<typename T>
 inline void tDoubleList<T>::pop_front()
 {
-	if (*head != nullptr)
+	if (head != nullptr)
 	{
-		*head = *head->next;
-		*head->prev = nullptr;
+		head = head->next;
+		head->prev = nullptr;
 	}
 }
 
@@ -129,25 +158,36 @@ inline void tDoubleList<T>::push_back(const T & val)
 	Node* new_Node = new Node();
 
 	new_Node->data = val;
-	new_Node->prev = *tail;
-	*tail->next = new_Node;
-	*tail = new_Node;
+
+	if (tail == nullptr)
+	{
+		tail = new_Node;
+		head = new_Node;
+	}
+	else
+	{
+		new_Node->prev = tail;
+		tail->next = new_Node;
+		tail = new_Node;
+	}
+	
+	
 }
 
 template<typename T>
 inline void tDoubleList<T>::pop_back()
 {
-	if (*tail != nullptr)
+	if (tail != nullptr)
 	{
-		*tail = *tail->prev;
-		*tail->next = nullptr;
+		tail = tail->prev;
+		tail->next = nullptr;
 	}
 }
 //prints the list in console
 template<typename T>
 inline void tDoubleList<T>::printList()
 {
-	Node* tmpCur = *head;
+	Node* tmpCur = head;
 	while (tmpCur != nullptr)
 	{
 		std::cout << tmpCur->data << std::endl;
@@ -181,25 +221,29 @@ inline const T & tDoubleList<T>::back() const
 
 //remove all elements that match the value
 template<typename T>
-inline void tDoubleList<T>::remove(const T & val)
+inline void tDoubleList<T>::remove(const T & val) //dosen't work
 {
-	Node* tmpCur = *head;
-	Node* tmpPrev = *head;
-	if (tmpCur != nullptr && tmpCur->data == val)
-	{
-		*head = tmpCur->next;
-	}
+	Node* tmpCur = head;
+	Node* tmpPrev = head;
 
+	while (tmpCur != nullptr && tmpCur->data == val)
+	{
+		head = tmpCur->next;
+		tmpCur = head;
+	}
+	tmpCur = head;
 	while (tmpCur->next != nullptr)
 	{
 		if (tmpCur->data != val)
 		{
 			tmpPrev = tmpCur;
-			tmpCur = tmpPrev->next;
+			tmpCur = tmpCur->next;
 		}
 		else
 		{
 			tmpPrev->next = tmpCur->next;
+			tmpCur->next->prev = tmpCur->prev;
+			tmpCur = tmpCur->next;
 		}
 	}
 
@@ -218,9 +262,9 @@ inline int tDoubleList<T>::sizeofList()
 }
 //returns true if linked list is empty
 template<typename T>
-inline bool tDoubleList<T>::empty() const
+inline bool tDoubleList<T>::empty() const //error
 {
-	if (*head == nullptr)
+	if (head == nullptr && tail == nullptr)
 	{
 		return true;
 	}
@@ -228,28 +272,30 @@ inline bool tDoubleList<T>::empty() const
 }
 //clears list
 template<typename T>
-inline void tDoubleList<T>::clear()
+inline void tDoubleList<T>::clear() //dosen't work in the way wanted
 {
 
-	while (*head != nullptr)
+	while (head != nullptr)
 	{
-		*head == *head->next;
+
+		head = head->next;
 	}
+
 }
 
 template<typename T>
-inline void tDoubleList<T>::resize(size_t newSize)
+inline void tDoubleList<T>::resize(size_t newSize) //error
 {
-	while(newSize < sizeofList)
+	while(newSize < sizeofList())
 	{
-		if (*tail != nullptr)
+		if (tail != nullptr)
 		{
-			*tail = *tail->prev;
-			*tail->next = nullptr;
+			tail = tail->prev;
+			tail->next = nullptr;
 		}
 	}
 
-	while (newSize > sizeofList)
+	while (newSize > sizeofList())
 	{
 		Node* new_Node = new Node();
 
@@ -304,50 +350,50 @@ template<typename T>
 inline typename tDoubleList<T>::iterator & tDoubleList<T>::iterator::operator++()
 {
 	cur = cur->next;
-	return cur;
+	return *this;
 }
 
 template<typename T>
 inline typename tDoubleList<T>::iterator tDoubleList<T>::iterator::operator++(int)
 {
 	cur = cur->next;
-	return cur;
+	return *this;
 }
 
 template<typename T>
 inline typename tDoubleList<T>::iterator & tDoubleList<T>::iterator::operator--()
 {
 	cur = cur->prev;
-	return cur;
+	return *this;
 }
 
 template<typename T>
 inline typename tDoubleList<T>::iterator tDoubleList<T>::iterator::operator--(int)
 {
 	cur = cur->prev;
-	return cur;
+	return *this;
 }
 
 template<typename T>
 inline typename tDoubleList<T>::iterator tDoubleList<T>::begin()
 {
-	return iterator();
+	return iterator(*head);
 }
 
 template<typename T>
 inline const typename tDoubleList<T>::iterator tDoubleList<T>::begin() const
 {
-	return iterator();
+	return iterator(*head);
 }
 
 template<typename T>
 inline typename tDoubleList<T>::iterator tDoubleList<T>::end()
 {
-	return iterator();
+	return iterator(nullptr);
 }
 
 template<typename T>
 inline const typename tDoubleList<T>::iterator tDoubleList<T>::end() const
 {
-	return iterator();
+	return iterator(nullptr);
 }
