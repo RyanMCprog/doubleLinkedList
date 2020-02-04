@@ -9,6 +9,7 @@ class tDoubleList
 		Node * prev;
 		Node * next;
 
+		//constructors
 		Node() 
 		{
 			prev = next = nullptr;
@@ -93,7 +94,7 @@ inline tDoubleList<T>::tDoubleList()
 	head->next = tail;
 	tail->prev = head;
 }
-
+//copy constructors
 template<typename T>
 inline tDoubleList<T>::tDoubleList(const tDoubleList & other)
 {
@@ -128,7 +129,7 @@ inline tDoubleList<T>::~tDoubleList()
 	}
 	head = 0;
 }
-//push and pops
+//pushs to the front of the linked list and changes it so the head and the node in front it are pointing to the new node
 template<typename T>
 inline void tDoubleList<T>::push_front(const T & val)
 {
@@ -143,7 +144,7 @@ inline void tDoubleList<T>::push_front(const T & val)
 	
 	
 }
-
+//removes the node in the front and changes so the head and the node in front of the removed node are pointing at eachother
 template<typename T>
 inline void tDoubleList<T>::pop_front()
 {
@@ -151,7 +152,7 @@ inline void tDoubleList<T>::pop_front()
 	head->next->prev = head;
 
 }
-
+//pushs to the back of the linked list and changes it so the tail and the node behind it are pointing to the new node
 template<typename T>
 inline void tDoubleList<T>::push_back(const T & val)
 {
@@ -164,7 +165,7 @@ inline void tDoubleList<T>::push_back(const T & val)
 	
 	
 }
-
+//removes the node in the back and changes so the tail and the node behind the removed node are pointing at eachother
 template<typename T>
 inline void tDoubleList<T>::pop_back()
 {
@@ -214,7 +215,7 @@ inline const T & tDoubleList<T>::back() const
 
 //remove all elements that match the value
 template<typename T>
-inline void tDoubleList<T>::remove(const T & val) //dosen't work
+inline void tDoubleList<T>::remove(const T & val) 
 {
 	Node* tmpCur = head->next;
 	Node* tmpPrev = head->next;
@@ -265,7 +266,7 @@ inline bool tDoubleList<T>::empty() const
 }
 //clears list
 template<typename T>
-inline void tDoubleList<T>::clear() //dosen't work in the way wanted
+inline void tDoubleList<T>::clear() 
 {
 
 	while (head->next != tail)
@@ -275,9 +276,9 @@ inline void tDoubleList<T>::clear() //dosen't work in the way wanted
 	}
 
 }
-
+//changes the size of the linked list
 template<typename T>
-inline void tDoubleList<T>::resize(size_t newSize) //error
+inline void tDoubleList<T>::resize(size_t newSize) 
 {
 	while(newSize < sizeofList())
 	{

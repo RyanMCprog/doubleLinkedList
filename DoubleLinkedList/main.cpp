@@ -30,4 +30,13 @@ int main()
 
 	linkedList.printList();
 
+	linkedList.clear();
+	if (linkedList.empty())
+	{
+		std::cout << "empty" << std::endl;
+	}
+
+	linkedList.push_front(11);
+
+	linkedList.printList();
 }
