@@ -19,6 +19,13 @@ class tDoubleList
 			prev = next = nullptr; 
 			data = val; 
 		}
+
+		Node(const T& val, Node * _next, Node * _prev)
+		{
+			prev = _prev;
+			next = _next;
+			data = val;
+		}
 	};
 
 	Node * head;
@@ -81,8 +88,10 @@ public:
 template<typename T>
 inline tDoubleList<T>::tDoubleList()
 {
-	head = nullptr;
-	tail = nullptr;
+	head = new Node();
+	tail = new Node();
+	head->next = tail;
+	tail->prev = head;
 }
 
 template<typename T>
@@ -123,53 +132,35 @@ inline tDoubleList<T>::~tDoubleList()
 template<typename T>
 inline void tDoubleList<T>::push_front(const T & val)
 {
-	Node* new_Node = new Node();
+	Node* new_Node = new Node(val,head->next,head);
 
-	new_Node->data = val;
 
-	if (head == nullptr)
-	{
-		head = new_Node;
-		tail = new_Node;
-	}
-	else
-	{
-		
-		new_Node->next = head;
-		head->prev = new_Node;
-		head = new_Node;
-	}
+
+	head->next = new_Node;
+	new_Node->next->prev = new_Node;
+
+
+	
 	
 }
 
 template<typename T>
 inline void tDoubleList<T>::pop_front()
 {
-	if (head != nullptr)
-	{
-		head = head->next;
-		head->prev = nullptr;
-	}
+	head->next = head->next->next;
+	head->next->prev = head;
+
 }
 
 template<typename T>
 inline void tDoubleList<T>::push_back(const T & val)
 {
-	Node* new_Node = new Node();
+	Node* new_Node = new Node(val,tail,tail->prev);
 
-	new_Node->data = val;
+	tail->prev = new_Node;
+	new_Node->prev->next = new_Node;
 
-	if (tail == nullptr)
-	{
-		tail = new_Node;
-		head = new_Node;
-	}
-	else
-	{
-		new_Node->prev = tail;
-		tail->next = new_Node;
-		tail = new_Node;
-	}
+	
 	
 	
 }
@@ -177,20 +168,22 @@ inline void tDoubleList<T>::push_back(const T & val)
 template<typename T>
 inline void tDoubleList<T>::pop_back()
 {
-	if (tail != nullptr)
-	{
-		tail = tail->prev;
-		tail->next = nullptr;
-	}
+	tail->prev = tail->prev->prev;
+	tail->prev->next = tail;
+	
 }
 //prints the list in console
 template<typename T>
 inline void tDoubleList<T>::printList()
 {
-	Node* tmpCur = head;
+	Node* tmpCur = head->next;
+	std::cout << "XXXXX\n";
 	while (tmpCur != nullptr)
 	{
-		std::cout << tmpCur->data << std::endl;
+		if (tmpCur->next != nullptr)
+		{
+			std::cout << tmpCur->data << std::endl;
+		}
 		tmpCur = tmpCur->next;
 	}
 }
@@ -198,41 +191,41 @@ inline void tDoubleList<T>::printList()
 template<typename T>
 inline T &tDoubleList<T>::front()
 {
-	return head->data;
+	return head->next->data;
 }
 
 template<typename T>
 inline const T & tDoubleList<T>::front() const
 {
-	return head->data;
+	return head->next->data;
 }
 //return the value at the end of the list
 template<typename T>
 inline T & tDoubleList<T>::back()
 {
-	return tail->data;
+	return tail->prev->data;
 }
 
 template<typename T>
 inline const T & tDoubleList<T>::back() const
 {
-	return tail->data;
+	return tail->prev->data;
 }
 
 //remove all elements that match the value
 template<typename T>
 inline void tDoubleList<T>::remove(const T & val) //dosen't work
 {
-	Node* tmpCur = head;
-	Node* tmpPrev = head;
+	Node* tmpCur = head->next;
+	Node* tmpPrev = head->next;
 
-	while (tmpCur != nullptr && tmpCur->data == val)
+	while (head->next != tail && head->next->data == val)
 	{
-		head = tmpCur->next;
-		tmpCur = head;
+		head->next = head->next->next;
+		head->next->prev = head;
 	}
-	tmpCur = head;
-	while (tmpCur->next != nullptr)
+	tmpCur = head->next;
+	while (tmpCur != tail)
 	{
 		if (tmpCur->data != val)
 		{
@@ -252,8 +245,8 @@ template<typename T>
 inline int tDoubleList<T>::sizeofList()
 {
 	int count = 0;
-	Node* tmpCur = head;
-	while (tmpCur != nullptr)
+	Node* tmpCur = head->next;
+	while (tmpCur != tail)
 	{
 		count++;
 		tmpCur = tmpCur->next;
@@ -262,9 +255,9 @@ inline int tDoubleList<T>::sizeofList()
 }
 //returns true if linked list is empty
 template<typename T>
-inline bool tDoubleList<T>::empty() const //error
+inline bool tDoubleList<T>::empty() const 
 {
-	if (head == nullptr && tail == nullptr)
+	if (head->next == tail)
 	{
 		return true;
 	}
@@ -275,10 +268,10 @@ template<typename T>
 inline void tDoubleList<T>::clear() //dosen't work in the way wanted
 {
 
-	while (head != nullptr)
+	while (head->next != tail)
 	{
-
-		head = head->next;
+		head->next = head->next->next;
+		head->next->prev = head;
 	}
 
 }
@@ -288,21 +281,19 @@ inline void tDoubleList<T>::resize(size_t newSize) //error
 {
 	while(newSize < sizeofList())
 	{
-		if (tail != nullptr)
+		if (tail->prev != head)
 		{
-			tail = tail->prev;
-			tail->next = nullptr;
+			tail->prev = tail->prev->prev;
+			tail->prev->next = tail;
 		}
 	}
 
 	while (newSize > sizeofList())
 	{
-		Node* new_Node = new Node();
+		Node* new_Node = new Node(0, tail, tail->prev);
 
-		new_Node->data = 0;
-		new_Node->prev = tail;
-		tail->next = new_Node;
-		tail = new_Node;
+		tail->prev = new_Node;
+		new_Node->prev->next = new_Node;
 	}
 }
 
